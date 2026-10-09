@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plan PAES">
+<title>Plan PAES · M1, Historia y Lectora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F8FC; --grid:#E3E9F4; --ink:#1B2545; --soft:#5B6685; --card:#FFFFFF; --line:#D9E0EE;
+  --m1:#2F7BF0; --m1bg:#E4EEFE; --m2:#7C4DDB; --m2bg:#EFE7FD; --hi:#C98A00; --hibg:#FFF3D1;
+  --le:#D6336C; --lebg:#FCE4EC; --gym:#1F9A5E; --gymbg:#DDF5E8; --pre:#6B7280; --prebg:#EEF0F3; --today:#FF5A36;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10152A; --grid:#1A2140; --ink:#E8ECF7; --soft:#9AA3BF; --card:#161D38; --line:#28315A;
+    --m1:#6FA6FF; --m1bg:#1C2D55; --m2:#AE8CFF; --m2bg:#2B2352; --hi:#F2B93B; --hibg:#3A2F12;
+    --le:#F783AC; --lebg:#3A1626; --gym:#4CCB8A; --gymbg:#133A29; --pre:#A0A6B5; --prebg:#232A45; --today:#FF7A5C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10152A; --grid:#1A2140; --ink:#E8ECF7; --soft:#9AA3BF; --card:#161D38; --line:#28315A;
+  --m1:#6FA6FF; --m1bg:#1C2D55; --m2:#AE8CFF; --m2bg:#2B2352; --hi:#F2B93B; --hibg:#3A2F12;
+  --le:#F783AC; --lebg:#3A1626; --gym:#4CCB8A; --gymbg:#133A29; --pre:#A0A6B5; --prebg:#232A45; --today:#FF7A5C;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);height:100%;overflow:hidden}
+body{
+  height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain;
+  scroll-padding-top:70px;
+  margin:0; font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink);
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px; line-height:1.45;
+}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+h1,h2,.num{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif}
+header h1{font-size:2rem;line-height:1.05;margin:8px 0 6px;font-weight:800;letter-spacing:-.02em}
+header p{margin:0;color:var(--soft);font-size:.95rem}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:12px 0 10px;margin-top:14px;border-bottom:1px solid var(--line)}
+.prog{display:flex;align-items:center;gap:12px}
+.track{flex:1;height:14px;border-radius:7px;background:var(--card);border:1.5px solid var(--ink);overflow:hidden}
+.fill{height:100%;width:0;background:repeating-linear-gradient(45deg,var(--m1),var(--m1) 6px,var(--m2) 6px,var(--m2) 12px);transition:width .4s}
+.count{font-weight:700;font-size:.95rem;white-space:nowrap}
+.actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;font-size:.85rem;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--today);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.week{margin-top:28px}
+.week h2{font-size:1.25rem;margin:0 0 10px;font-weight:700}
+.week h2 small{font-family:"Figtree",sans-serif;font-weight:500;color:var(--soft);font-size:.85rem;margin-left:6px}
+.day{display:grid;grid-template-columns:58px 1fr;gap:12px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.day.is-today{border-color:var(--today);box-shadow:0 0 0 3px color-mix(in srgb,var(--today) 25%,transparent)}
+.date{text-align:center}
+.date .dow{font-size:.78rem;color:var(--soft);font-weight:600}
+.date .num{font-size:1.9rem;font-weight:800;line-height:1}
+.date .mon{font-size:.72rem;color:var(--soft)}
+.tag-today{display:inline-block;margin-top:4px;font-size:.68rem;font-weight:700;color:#fff;background:var(--today);border-radius:6px;padding:1px 6px}
+.blocks{display:flex;flex-direction:column;gap:6px;min-width:0}
+.b{display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:8px 10px;border-left:5px solid}
+.b .t{font-size:.76rem;font-weight:600;opacity:.85;white-space:nowrap}
+.b .what{font-size:.93rem;font-weight:500}
+.b .subj{font-weight:700}
+.b label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;width:100%}
+.b input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--ink)}
+.subs{margin:4px 0 0;padding-left:18px;font-size:.84rem;color:var(--soft)}
+.subs li{margin:1px 0}
+.b.done .subs{opacity:.55;text-decoration:line-through}
+.b.done .what{text-decoration:line-through;opacity:.55}
+.new{font-size:.68rem;font-weight:700;border:1px solid currentColor;border-radius:5px;padding:0 4px;margin-left:4px;white-space:nowrap}
+.m1{background:var(--m1bg);border-color:var(--m1)} .m1 .subj{color:var(--m1)}
+.m2{background:var(--m2bg);border-color:var(--m2)} .m2 .subj{color:var(--m2)}
+.hi{background:var(--hibg);border-color:var(--hi)} .hi .subj{color:var(--hi)}
+.gym{background:var(--gymbg);border-color:var(--gym)} .gym .subj{color:var(--gym)}
+.ens{background:var(--card);border-color:var(--today)} .ens .subj{color:var(--today)}
+.tar{background:var(--prebg);border-color:var(--soft);border-left-style:dotted} .tar .subj{color:var(--soft)}
+.help{margin-top:16px;background:var(--card);border:1.5px solid var(--ink);border-radius:14px;padding:12px 14px}
+.help summary{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;font-size:1.05rem;cursor:pointer}
+.help ol{margin:10px 0 2px;padding-left:20px;font-size:.92rem}
+.help li{margin:6px 0}
+.le{background:var(--lebg);border-color:var(--le)} .le .subj{color:var(--le)}
+.pre{background:var(--prebg);border-color:var(--pre)} .pre .subj{color:var(--pre)}
+.free{background:transparent;border-color:var(--line);border-left-style:dashed}
+.final{margin-top:30px;background:var(--card);border:1.5px dashed var(--ink);border-radius:14px;padding:16px}
+.final h2{margin:0 0 6px;font-size:1.2rem}
+.final p{margin:6px 0;color:var(--soft)}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+    --paper:#fff; --grid:#fff; --ink:#1B2545; --soft:#5B6685; --card:#fff; --line:#C9D2E3;
+    --m1:#2F7BF0; --m1bg:#E4EEFE; --m2:#7C4DDB; --m2bg:#EFE7FD; --hi:#C98A00; --hibg:#FFF3D1;
+    --le:#D6336C; --lebg:#FCE4EC; --gym:#1F9A5E; --gymbg:#DDF5E8; --pre:#6B7280; --prebg:#EEF0F3; --today:#FF5A36;
+    padding:0;
+  }
+  @page{size:A4;margin:12mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;font-size:10px;height:auto;overflow:visible}
+  html{height:auto;overflow:visible}
+  .wrap{max-width:none;padding:0}
+  .help,.actions,.prog{display:none}
+  .bar{position:static;border:none;padding:4px 0;margin-top:6px}
+  header h1{font-size:1.6rem}
+  .week{margin-top:0;break-before:page}
+  .week:first-child{break-before:auto}
+  .week h2{font-size:1.1rem;margin-bottom:6px}
+  .day{break-inside:avoid;padding:6px 8px;border-radius:8px;grid-template-columns:44px 1fr;gap:8px}
+  .date .num{font-size:1.4rem}
+  .blocks{gap:3px}
+  .week{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start}
+  .week h2{grid-column:1/-1}
+  .day{margin-bottom:0}
+  .b{padding:4px 7px;border-radius:6px;break-inside:avoid}
+  .b .what{font-size:.85rem}
+  .subs{font-size:.76rem;margin-top:2px}
+  .b input{width:14px;height:14px}
+  .b.done .what,.b.done .subs{text-decoration:none;opacity:1}
+  .final{break-inside:avoid}
+  .b .t+br{display:none}
+  .b .t{margin-right:6px}
+  .b.free{padding:1px 7px}
+  .subs{display:flex;flex-wrap:wrap;gap:0 10px;padding-left:12px}
+  .subs li{margin:0}
+  @page{margin:9mm}
+}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Plan PAES: M1, Historia y Lectora</h1>
+    <p>Desde el 12 de octubre. Noviembre full PAES, con viernes sin estudio, sábados livianos y tiempo para ti los lunes, miércoles y domingos en la tarde.</p>
+  </header>
+  <details class="help" open>
+    <summary>¿No alcanzaste algo? Haz esto</summary>
+    <ol>
+      <li><strong>Hiciste parte del tema:</strong> no lo marques. Termina lo que falta en los primeros 20 min de tu próximo bloque de esa materia.</li>
+      <li><strong>Te saltaste un bloque:</strong> recupéralo esa semana, en el bloque de tarea o guía de preu de otro día.</li>
+      <li><strong>Te atrasaste varios temas:</strong> usa el margen: jueves 26 de noviembre, y si hace falta haz un ensayo menos de cada prueba.</li>
+      <li><strong>Prioriza:</strong> lo que más sale en los ensayos y lo que más te cuesta.</li>
+      <li><strong>Si estás muy cansado o enfermo:</strong> descansa de verdad. Nunca lo recuperes esa misma noche.</li>
+    </ol>
+  </details>
+  <div class="bar">
+    <div class="prog">
+      <div class="track" role="progressbar" aria-label="Avance" aria-valuemin="0" aria-valuenow="0"><div class="fill" id="fill"></div></div>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="actions"><button id="goToday">Ir a hoy</button><button id="fsBtn">⛶ Pantalla completa</button></div>
+<script>
+(function(){
+  const b=document.getElementById("fsBtn"), d=document.documentElement;
+  const req=d.requestFullscreen||d.webkitRequestFullscreen;
+  if(!req){b.style.display="none";return;}
+  const isFs=()=>document.fullscreenElement||document.webkitFullscreenElement;
+  const upd=()=>{b.textContent=isFs()?"✕ Salir de pantalla completa":"⛶ Pantalla completa";};
+  b.addEventListener("click",()=>{
+    try{ if(isFs()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);} else {req.call(d);} }catch(e){}
+  });
+  document.addEventListener("fullscreenchange",upd);
+  document.addEventListener("webkitfullscreenchange",upd);
+})();
+</script>
+    <div class="legend">
+      <span class="chip m1" style="border-left:none">M1</span>
+            <span class="chip hi" style="border-left:none">Historia</span>
+      <span class="chip le" style="border-left:none">Lectora</span>
+      <span class="chip ens" style="border-left:none">Ensayo</span>
+      <span class="chip gym" style="border-left:none">Deporte</span>
+      <span class="chip tar" style="border-left:none">Tarea / guía de preu</span>
+      <span class="chip pre" style="border-left:none">Colegio / preu</span>
+    </div>
+  </div>
+  <main id="plan"></main>
+  <section class="final">
+    <h2>30 de noviembre, 1 y 2 de diciembre: PAES</h2>
+    <p>Llega con todo listo la noche anterior, duerme bien y confía en lo que estudiaste.</p>
+  </section>
+</div>
+<script>
+const M1 = [
+  "Números enteros||Operaciones con enteros;Orden y recta numérica;Problemas en contexto",
+  "Números racionales||Operar fracciones y decimales;Comparar y ordenar racionales;Problemas en contexto",
+  "Porcentajes||Calcular un porcentaje;Aumentos y descuentos;Problemas en contexto",
+  "Potencias y raíces||Propiedades de potencias (exponente racional);Descomponer y simplificar raíces;Problemas en contexto",
+  "Expresiones algebraicas||Productos notables;Factorización;Operatoria algebraica",
+  "Proporcionalidad||Proporción directa;Proporción inversa;Tablas y gráficos de cada una",
+  "Ecuaciones e inecuaciones lineales||Resolver ecuaciones lineales;Resolver inecuaciones lineales;Plantear problemas",
+  "Sistemas de ecuaciones 2x2||Sustitución e igualación;Reducción;Problemas en contexto",
+  "Función lineal y afín||Diferencia entre lineal y afín;Pendiente y coeficiente de posición;Tablas, gráficos y problemas",
+  "Función cuadrática||Ecuación de 2º grado;Vértice, ceros e intersección con los ejes;Cómo cambia el gráfico con sus parámetros",
+  "Figuras geométricas||Teorema de Pitágoras;Perímetro y área de triángulos, paralelogramos y trapecios;Perímetro y área del círculo",
+  "Cuerpos geométricos||Área de cubos y paralelepípedos;Área de cilindros;Volumen de cubos, paralelepípedos y cilindros",
+  "Transformaciones isométricas||Puntos y vectores en el plano;Traslación;Rotación y reflexión",
+  "Semejanza y proporcionalidad||Figuras semejantes y razón de semejanza;Modelos a escala;Problemas en contexto",
+  "Tablas, gráficos y promedio||Frecuencia absoluta y relativa;Tipos de gráficos;Promedio",
+  "Medidas de posición y probabilidades||Cuartiles, percentiles y diagrama de cajón;Probabilidad de un evento;Regla aditiva y multiplicativa"
+];
+const HI = [
+  "Estado-nación en el s. XIX||Ideas republicanas y liberales;Nacionalismo;Impacto del Estado-nación en Europa y América",
+  "Chile: formación de la República||Ensayos constitucionales;Orden conservador y liberal;Construcción de la idea de nación",
+  "Economía chilena del s. XIX||Chile en la industrialización atlántica;Exportaciones: plata, cobre, trigo y salitre;Mercados internacionales",
+  "Sociedad chilena entre el s. XIX y el XX||Urbanización;Cuestión social;Movimiento obrero y sectores medios",
+  "Crisis del Estado liberal||Totalitarismos europeos;Populismo en América Latina;Inicios del Estado de bienestar",
+  "Orden mundial de posguerra||Nuevo orden internacional;Descolonización;ONU y Declaración Universal de DD.HH.",
+  "Guerra Fría|new||Bloques capitalista y socialista;Confrontación ideológica;Manifestaciones políticas y culturales",
+  "América Latina en la 2ª mitad del s. XX|new||Revoluciones (ej. Cuba);Reformas políticas;Dictaduras y violaciones de DD.HH.",
+  "Chile a mediados del s. XX|new||Pobreza y precariedad;Migración campo-ciudad;Democratización de la sociedad",
+  "Golpe de 1973 y modelo neoliberal||Distintas interpretaciones del Golpe;Quiebre de la democracia;Modelo económico neoliberal",
+  "Dictadura y transición|new||Violaciones a los DD.HH. y fin del Estado de derecho;Recuperación democrática en los 80;Transición desde 1988",
+  "Fin de la Guerra Fría|new||Derrumbe del bloque soviético;Auge del neoliberalismo;Globalización",
+  "Formación ciudadana||Fundamentos y atributos de la democracia;Institucionalidad y sistema judicial chileno;Medios y tecnologías en democracia",
+  "Sistema económico||Funcionamiento del mercado y qué lo altera;Relación Estado-mercado;Impactos sociales y ambientales de los modelos de desarrollo",
+  "Derechos laborales en Chile||Derechos laborales y cómo se protegen;Aporte de sindicatos y movimientos sociales;Tendencias actuales del trabajo"
+];
+const LE = [
+  "Localizar información||Información explícita del texto;Información dicha con sinónimos y paráfrasis;Práctica: 1 texto PAES",
+  "Tema, ideas principales y síntesis||Tema e ideas principales;Ideas de apoyo y jerarquía de ideas;Sintetizar una sección o el texto",
+  "Relaciones e inferencias||Relaciones causa/consecuencia, problema/solución, categoría/ejemplo;Inferencias locales y globales;Significado de expresiones y frases hechas",
+  "Textos argumentativos||Tesis y argumentos;Organización de las ideas y razonamientos;Hechos vs. opiniones",
+  "Recursos y estrategias||Recursos lingüísticos y retóricos (citas, modalizaciones, preguntas retóricas);Recursos no lingüísticos (tablas, imágenes, tipografía);Estrategias: humor, estereotipos, apelación a sentimientos",
+  "Evaluar textos no literarios||Propósito e intención del emisor;Ideologías, perspectiva y puntos de vista;Fallas argumentativas, suficiencia, consistencia y relación con otros contextos",
+  "Narraciones I: personajes, tiempo y espacio||Personajes: evolución, motivaciones, dilemas y relaciones;Personajes tipo y estereotipos;Tiempo y espacio en el relato",
+  "Narraciones II: sentido del relato||Tema, conflicto humano y creencias;Recursos literarios, símbolos y tópicos;Visión del narrador, relación con otros textos e hipótesis de sentido"
+];
+const C=(t,s)=>({c:"pre",t,s});
+const TAR=t=>({c:"tar",t,s:"Tarea del colegio"});
+const GNAME={m1:"Guía de preu de Matemáticas (la del martes)",hi:"Guía de preu de Historia (la del jueves)",le:"Guía de preu de Lenguaje (la del viernes)"};
+const GUIA=(t,x)=>({c:"tar",t,s:x?GNAME[x]:"Terminar la guía de preu que tengas atrasada"});
+const ME=t=>({c:"gym",t,s:"🏃 Deporte · tiempo para ti"});
+const FREE=(t,s)=>({c:"free",t,s});
+const ST=(t,sub)=>({t,sub});
+const NOTE=(t,s)=>({c:"ens",t,s});
+const ENS=(t,name,subs,k)=>({t,ens:name,subs,k:"ens-"+k});
+const HW=(t,name,subs,k)=>({t,ens:name,subs,k:"hw-"+k,cls:"tar"});
+const ENSUBS=["Prueba completa con tiempo real","Sin celular ni apuntes","Anota tu puntaje"];
+const ESUB=n=>[n.includes("Lectora")||n.includes("Lenguaje")?"7 textos en 2 h 30 min (unos 20 min por texto)":"65 preguntas en 2 h (menos de 2 min por pregunta)","Sin celular ni apuntes","Anota tu puntaje"];
+const VA=t=>FREE(t,"🚌 Vuelta a casa");
+const VC=t=>FREE(t,"🚌 Viaje al colegio");
+const VP=t=>FREE(t,"🚌 Viaje al preu");
+const PREU={2:[VP("18:15–18:30"),C("18:30–20:00","Preu · Matemáticas"),VA("20:00–20:15")],4:[VP("15:45–16:00"),C("16:00–17:30","Preu · Historia"),VA("17:30–17:45")],5:[VP("14:15–14:30"),C("14:30–16:00","Preu · Lenguaje"),VA("16:00–16:15")]};
+const PREU4S=[FREE("15:30–16:00","🚌 Del colegio al preu"),C("16:00–17:30","Preu · Historia"),VA("17:30–17:45")];
+
+const SCHOOL={
+  1:[VC("7:50–8:05"),C("8:05–11:35","Colegio"),VA("11:35–11:50"),FREE("11:50–14:00","Almuerzo y descanso"),ST("14:00–15:30","m1"),ST("15:45–17:00","hi"),ME("Desde las 17:00")],
+  2:[VC("7:45–8:00"),C("8:00–11:35","Colegio"),VA("11:35–11:50"),FREE("11:50–13:30","Almuerzo y descanso"),ST("13:30–15:00","m1"),TAR("15:15–16:15"),FREE("16:15–18:15","Descanso"),...PREU[2]],
+  3:[VC("7:50–8:05"),C("8:05–13:15","Colegio"),VA("13:15–13:30"),ST("14:30–15:45","hi"),GUIA("16:00–17:00","m1"),ME("Desde las 17:00")],
+  4:[VC("7:50–8:05"),C("8:05–15:30","Colegio"),...PREU4S,ST("18:30–19:30","le"),GUIA("19:45–20:30","hi")],
+  5:[VC("7:50–8:05"),C("8:05–13:15","Colegio"),VA("13:15–13:30"),FREE("13:30–14:15","Almuerzo"),...PREU[5],FREE("Resto del día","Libre, sin estudio")],
+  6:[ST("10:00–11:30","m1"),FREE("Desde las 11:30","Libre")],
+  0:[ST("10:00–11:30","hi"),ST("11:45–13:00","le"),FREE("13:00–14:30","Almuerzo"),GUIA("14:30–15:30","le"),ME("Desde las 15:30")]
+};
+const FULL={
+  1:[ST("9:00–10:30","m1"),ST("10:45–12:15","le"),FREE("12:15–13:30","Almuerzo"),GUIA("13:30–14:45"),ME("Desde las 15:00")],
+  2:[ST("9:00–10:30","m1"),ST("10:45–12:15","hi"),FREE("12:15–13:30","Almuerzo"),ST("13:30–15:00","le"),GUIA("15:15–16:30","hi"),...PREU[2]],
+  3:[ST("9:00–10:30","hi"),ST("10:45–12:15","m1"),FREE("12:15–13:30","Almuerzo"),GUIA("13:30–14:45","m1"),ME("Desde las 15:00")],
+  4:[ST("9:00–10:30","m1"),ST("10:45–12:15","hi"),FREE("12:15–13:30","Almuerzo"),GUIA("13:30–14:45"),...PREU[4],ST("18:30–19:45","le")],
+  5:[...PREU[5],FREE("Todo el día","Sin estudio")],
+  6:[ST("10:00–11:30","m1"),FREE("Desde las 11:30","Libre")],
+  0:[ST("10:00–11:30","hi"),ST("11:45–13:15","m1"),FREE("13:15–14:30","Almuerzo"),GUIA("14:30–15:30","le"),ME("Desde las 15:30")]
+};
+function ensDay(dow,name,k){
+  const end=name.includes("Lectora")?"11:30":"11:00";
+  const E=ENS("9:00–"+end,name,ESUB(name),k);
+  const REV=t=>NOTE(t,"Revisar errores del ensayo");
+  const map={
+    1:[E,FREE("11:30–13:00","Descanso y almuerzo"),REV("13:00–14:30"),ME("Desde las 14:30")],
+    2:[E,FREE("11:30–13:00","Descanso y almuerzo"),REV("13:00–14:30"),GUIA("14:45–16:00","hi"),...PREU[2]],
+    3:[E,FREE("11:30–13:00","Descanso y almuerzo"),REV("13:00–14:30"),ME("Desde las 14:30")],
+    4:[E,FREE("11:30–12:30","Descanso y almuerzo"),REV("12:30–13:45"),GUIA("14:00–15:15"),...PREU[4]],
+    0:[E,FREE("11:30–13:00","Descanso y almuerzo"),REV("13:00–14:30"),ME("Desde las 14:30")]
+  };
+  return map[dow];
+}
+const SPECIAL={
+  "10-11":[ENS("9:00–11:30","Ensayo PAES",ENSUBS,"ens-oct11"),FREE("11:30–13:00","Descanso y almuerzo"),NOTE("13:00–14:00","Revisar errores del ensayo"),ME("Desde las 14:30")],
+  "10-12":[FREE("Feriado","Sin clases"),HW("9:00–11:00","Tarea Historia: guía personalizada",["Rehaz los ejercicios que tuviste malos","Anota por qué estaban malos","Marca los temas que más se repiten"],"gp1"),FREE("11:00–14:00","Descanso y almuerzo"),ENS("14:00–16:30","Ensayo de Lenguaje para entregar el viernes",ESUB("Lenguaje"),"el1"),ME("Desde las 17:00")],
+  "10-13":[VC("7:45–8:00"),C("8:00–11:35","Colegio"),VA("11:35–11:50"),FREE("11:50–13:15","Almuerzo"),NOTE("13:30–16:30","🎉 Alianzas (ajusta la hora)"),FREE("16:30–18:15","Descanso"),...PREU[2]],
+  "10-14":[VC("7:50–8:05"),C("8:05–13:15","Colegio"),VA("13:15–13:30"),FREE("13:30–14:15","Almuerzo"),HW("14:15–15:15","📝 Prueba mate (1/5): ordena la materia",["Junta los temas que entran en la prueba","Haz un resumen de fórmulas y pasos","Marca lo que no entiendes"],"pm1"),ST("15:30–16:45","hi"),ME("Desde las 17:00")],
+  "10-15":[VC("7:50–8:05"),C("8:05–15:30","Colegio"),...PREU4S,HW("18:00–19:00","📝 Prueba mate (2/5): ejercicios de la primera mitad de la materia",["Ejercicios de guías y del cuaderno","Revisa cada resultado","Anota dónde te equivocas"],"pm2"),HW("19:15–20:00","Revisar el ensayo de Lenguaje",["Revisa las preguntas que te costaron","Anota en qué tipo de pregunta fallas más","Déjalo listo para entregar mañana"],"el3")],
+  "10-16":[FREE("Feriado","Sin colegio"),HW("10:00–11:30","📝 Prueba mate (3/5): ejercicios de la segunda mitad de la materia",["Ejercicios de guías y del cuaderno","Revisa cada resultado","Anota dónde te equivocas"],"pm3"),NOTE("Hoy","📤 Entregar ensayo de Lenguaje"),FREE("11:30–14:15","Libre y almuerzo"),...PREU[5],FREE("Resto del día","Libre")],
+  "10-17":[HW("10:00–11:30","📝 Prueba mate (4/5): tus errores",["Rehaz los ejercicios que tuviste malos","Repasa las fórmulas que más olvidas","Pregunta tus dudas a un compañero o profe"],"pm4"),HW("11:45–12:45","Tarea Historia: terminar guía personalizada",["Termina los ejercicios pendientes","Revisa que esté completa"],"gp2"),FREE("Desde las 12:45","Libre")],
+  "10-18":[HW("10:00–11:30","📝 Prueba mate (5/5): simulacro",["Ejercicios mezclados con tiempo, como en la prueba","Repaso final de fórmulas","Duerme temprano"],"pm5"),HW("11:45–13:00","Tarea Historia: ítems completables (1 y 2)",["Completa los primeros temas","Usa los resúmenes y líneas de tiempo del colegio"],"ic1"),FREE("13:00–14:00","Almuerzo"),HW("14:00–15:00","Tarea Historia: ítems completables (3)",["Termina los temas que quedan"],"ic3"),ME("Desde las 15:15")],
+  "10-19":[VC("7:50–8:05"),NOTE("8:05–11:35","Colegio · 📝 Prueba de matemática"),VA("11:35–11:50"),FREE("11:50–14:00","Almuerzo y descanso"),ST("14:00–15:30","m1"),ST("15:45–17:00","hi"),ME("Desde las 17:00")],
+  "10-20":[VC("7:45–8:00"),C("8:00–11:35","Colegio"),VA("11:35–11:50"),FREE("11:50–13:30","Almuerzo y descanso"),ST("13:30–15:00","m1"),HW("15:15–16:15","Tarea Historia: revisar todo y entregar",["Revisa que ambas guías estén completas","Entrégalas esta semana"],"rev"),FREE("16:15–18:15","Descanso"),...PREU[2]],
+  "10-27":[ENS("8:30–11:00","Ensayo Lenguaje (Lectora)",ESUB("Lectora"),"lect-oct27"),VA("11:00–11:15"),FREE("11:15–13:00","Descanso y almuerzo"),NOTE("13:00–14:00","Revisar errores del ensayo"),ST("14:15–15:45","m1"),FREE("15:45–18:15","Descanso"),...PREU[2]],
+  "10-30":[VC("7:50–8:05"),C("8:05–13:15","Último día de colegio 🎓"),VA("13:15–13:30"),FREE("13:30–14:15","Almuerzo"),...PREU[5],FREE("Resto del día","Libre")],
+  "10-31":[FREE("Todo el día","Halloween 🎃 Libre")],
+  "11-26":[ENS("9:00–12:15","Repaso de tus 3 temas más débiles",["Míralos en tu registro de errores","Teoría corta y muchos ejercicios","Prioriza M1"],"w1"),FREE("12:15–13:30","Almuerzo"),GUIA("13:30–14:45"),...PREU[4]],
+  "11-28":[ENS("9:30–11:00","Repaso suave de fórmulas y errores",["Solo lo que más te costó","Nada de materia nueva","Termina temprano"],"r3"),FREE("Desde las 11:00","Libre")],
+  "11-29":[FREE("Todo el día","Descanso: deja listo carnet, lápices y la ruta al local")]
+};
+const LISTS={m1:{arr:M1,name:"M1",c:"m1"},hi:{arr:HI,name:"Historia",c:"hi"},le:{arr:LE,name:"Lectora",c:"le"}};
+const DOW=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const MON=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+let done={};
+try{done=JSON.parse(localStorage.getItem("plan-paes-mhl-done")||"{}")||{};}catch(e){done={};}
+function save(){try{localStorage.setItem("plan-paes-mhl-done",JSON.stringify(done));}catch(e){}}
+const ptr={m1:0,hi:0,le:0};
+let TOTAL=0, overflow=0, finNote=false, fin=null, finPassed=false, eqi=0; const cnt={};
+const EQ=["M1","Lectora","Historia","M1","Lectora","M1","Historia","M1","Lectora","M1"];
+const plan=document.getElementById("plan"); plan.innerHTML="";
+const start=new Date(2026,9,12);
+const today=new Date(); today.setHours(0,0,0,0);
+let todayEl=null, firstEl=null;
+function checkBlock(cls,t,label,name,subs,k){
+  TOTAL++; const isDone=!!done[k];
+  return `<div class="b ${cls}${isDone?' done':''}"><label><input type="checkbox" data-k="${k}" ${isDone?'checked':''}><span><span class="t">${t}</span><br><span class="what"><span class="subj">${label}</span> ${esc(name)}</span><ul class="subs">${subs.map(x=>'<li>'+esc(x)+'</li>').join('')}</ul></span></label></div>`;
+}
+const TITLES=["Semana 1","Semana 2","Semana 3: última de colegio","Semana 4: full PAES","Semana 5: fin de materia","Semana 6: ensayos","Semana 7: últimos ensayos"];
+for(let w=-1;w<7;w++){
+  const ws=new Date(start); ws.setDate(start.getDate()+w*7);
+  const we=new Date(ws); we.setDate(ws.getDate()+6);
+  const sec=document.createElement("section"); sec.className="week";
+  sec.innerHTML=w<0?`<h2>Este domingo<small>${we.getDate()} ${MON[we.getMonth()]}</small></h2>`:`<h2>${TITLES[w]}<small>${ws.getDate()} ${MON[ws.getMonth()]} – ${we.getDate()} ${MON[we.getMonth()]}</small></h2>`;
+  for(let d=(w<0?6:0);d<7;d++){
+    const date=new Date(ws); date.setDate(ws.getDate()+d);
+    const dow=date.getDay();
+    const key=(date.getMonth()+1)+"-"+date.getDate();
+    const nov=date.getMonth()===10;
+    let blocks=SPECIAL[key]||(nov?FULL[dow]:SCHOOL[dow]);
+    if(finPassed && !SPECIAL[key] && dow!==5 && dow!==6){
+      const pr=EQ[eqi%EQ.length]; eqi++; cnt[pr]=(cnt[pr]||0)+1;
+      blocks=ensDay(dow,"Ensayo "+pr+" #"+cnt[pr],pr+cnt[pr]);
+    }
+    const isToday=date.getTime()===today.getTime();
+    const el=document.createElement("article"); el.className="day"+(isToday?" is-today":"");
+    let html=`<div class="date"><div class="dow">${DOW[dow].slice(0,3)}</div><div class="num">${date.getDate()}</div><div class="mon">${MON[date.getMonth()]}</div>${isToday?'<span class="tag-today">Hoy</span>':''}</div><div class="blocks">`;
+    for(const b of blocks){
+      if(b.sub){
+        let sb=b.sub; if(ptr[sb]>=LISTS[sb].arr.length){ const alt=["m1","hi","le"].find(x=>ptr[x]<LISTS[x].arr.length); if(alt) sb=alt; }
+        const L=LISTS[sb]; const i=ptr[sb]++;
+        if(i>=L.arr.length){ overflow++; html+=`<div class="b ens"><span><span class="t">${b.t}</span><br><span class="what"><span class="subj">Repaso libre de lo que más te costó</span></span></span></div>`; continue; }
+        if(ptr.m1>=M1.length&&ptr.hi>=HI.length&&ptr.le>=LE.length&&!fin){fin=key; finNote=true;}
+        const [head,subStr=""]=L.arr[i].split("||"); const [name]=head.split("|");
+        html+=checkBlock(L.c,b.t,L.name+":",name,subStr?subStr.split(";"):[],sb+"-"+i);
+      } else if(b.ens){
+        html+=checkBlock(b.cls||"ens",b.t,"",b.ens,b.subs,b.k);
+      } else {
+        html+=`<div class="b ${b.c}"><span>${b.t?`<span class="t">${b.t}</span><br>`:''}<span class="what"><span class="subj">${esc(b.s)}</span></span></span></div>`;
+      }
+    }
+    if(finNote){html+=`<div class="b free"><span><span class="what"><span class="subj">🎉 Terminaste toda la materia</span></span></span></div>`;finNote=false;}
+    if(fin) finPassed=true;
+    html+=`</div>`; el.innerHTML=html; sec.appendChild(el);
+    if(isToday) todayEl=el; if(!firstEl) firstEl=el;
+  }
+  plan.appendChild(sec);
+}
+document.querySelector(".track").setAttribute("aria-valuemax",TOTAL);
+function updateProgress(){
+  const n=Object.values(done).filter(Boolean).length;
+  document.getElementById("fill").style.width=(n/TOTAL*100)+"%";
+  document.getElementById("count").textContent=n+" / "+TOTAL+" del plan";
+  document.querySelector(".track").setAttribute("aria-valuenow",n);
+}
+plan.addEventListener("change",e=>{
+  const cb=e.target; if(!cb.matches('input[type="checkbox"]')) return;
+  done[cb.dataset.k]=cb.checked; cb.closest(".b").classList.toggle("done",cb.checked);
+  save(); updateProgress();
+});
+document.getElementById("goToday").addEventListener("click",()=>{
+  const target=todayEl||(today<start?firstEl:document.querySelector(".final"));
+  const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  target.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+});
+updateProgress();
+</script>
+</body>
+</html>
